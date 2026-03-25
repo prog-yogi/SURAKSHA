@@ -55,10 +55,10 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-6">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-amber-400 text-sm font-bold text-white">
-            A
+            S
           </span>
           <span className="hidden font-bold tracking-tight text-slate-900 sm:inline">
-            AARAMBCHAIN
+            SURAKSHA
           </span>
           <span className="rounded-full bg-amber-300/90 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-900">
             Tourist Safety
@@ -84,14 +84,6 @@ export function Navbar() {
 
         {/* Desktop right actions */}
         <div className="hidden items-center gap-2 lg:flex">
-          {/* e-FIR link */}
-          <Link
-            href="/dashboard/user/fir"
-            className="flex items-center gap-1 rounded-full border-2 border-slate-800 px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-          >
-            <FileText className="h-4 w-4" />
-            e-FIR
-          </Link>
 
           {/* Login dropdown */}
           <div className="relative" ref={loginRef}>
@@ -133,14 +125,6 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Emergency SOS */}
-          <Link
-            href="/emergency"
-            className="flex items-center gap-1 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
-          >
-            <AlertTriangle className="h-4 w-4" />
-            Emergency SOS
-          </Link>
 
           {/* More dropdown — houses Download App, Language, Contact */}
           <div className="relative" ref={moreRef}>

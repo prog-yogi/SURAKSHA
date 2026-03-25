@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle2,
-  ClipboardList,
   Loader2,
   LogOut,
   MapPin,

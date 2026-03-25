@@ -93,54 +93,117 @@ export function LandingPage() {
   return (
     <div className="bg-white">
       {/* ── Hero ── */}
-      <section className="hero-gradient circuit-bg relative overflow-hidden text-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-14 lg:flex-row lg:items-center lg:py-20 lg:px-8">
+      <section className="hero-gradient circuit-bg grid-bg relative overflow-hidden text-white">
+        {/* Decorative orbs */}
+        <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-purple-500/10 blur-3xl" />
+
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 py-16 lg:flex-row lg:items-center lg:gap-16 lg:py-24 lg:px-8">
+          {/* Slide arrows */}
           <button
             type="button"
-            className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 hover:bg-white/20 lg:block"
+            className="absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 backdrop-blur transition hover:bg-white/15 lg:block"
             onClick={() => setSlide((i) => (i === 0 ? heroSlides.length - 1 : i - 1))}
             aria-label="Previous"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             type="button"
-            className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 hover:bg-white/20 lg:block"
+            className="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 backdrop-blur transition hover:bg-white/15 lg:block"
             onClick={() => setSlide((i) => (i + 1) % heroSlides.length)}
             aria-label="Next"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5" />
           </button>
 
-          <div className="flex w-full max-w-md justify-center lg:w-1/2">
-            <div className="w-full max-w-xs rounded-3xl bg-slate-900/40 p-8 shadow-2xl backdrop-blur">
-              <div className="rounded-2xl bg-red-600 px-6 py-5 text-center shadow-lg">
-                <p className="text-lg font-black tracking-wide">ARE YOU SAFE?</p>
-                <div className="mt-3 h-2 w-full rounded-full bg-white/20" />
+          {/* Left — SOS Card with animated ring */}
+          <div className="relative flex w-full max-w-sm justify-center lg:w-5/12">
+            {/* Animated outer ring */}
+            <div className="absolute inset-0 m-auto h-72 w-72 animate-spin-slow rounded-full border-2 border-dashed border-cyan-400/20" />
+            <div className="absolute inset-0 m-auto h-64 w-64 animate-spin-slow rounded-full border border-indigo-400/15" style={{ animationDirection: 'reverse', animationDuration: '18s' }} />
+
+            <div className="relative z-10 w-full max-w-xs">
+              {/* Main SOS Card */}
+              <div className="glass-strong rounded-3xl p-8 shadow-2xl">
+                <div className="animate-pulse-glow rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-rose-700 px-6 py-6 text-center shadow-lg shadow-red-500/30">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <AlertTriangle className="h-5 w-5" />
+                  </div>
+                  <p className="text-xl font-black tracking-widest">ARE YOU SAFE?</p>
+                  <div className="mx-auto mt-3 h-1.5 w-3/4 rounded-full bg-white/20">
+                    <div className="h-full w-2/3 rounded-full bg-white/60 animate-shimmer" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)', backgroundSize: '200% 100%' }} />
+                  </div>
+                </div>
+                <p className="mt-5 text-center text-xs font-medium tracking-wide text-white/70">
+                  One-tap SOS · Live location · Authority sync
+                </p>
               </div>
-              <p className="mt-4 text-center text-xs text-white/80">
-                One-tap SOS · Live location · Authority sync
-              </p>
+
+              {/* Floating stat badges */}
+              <div className="absolute -left-6 top-4 animate-float glass rounded-xl px-3 py-2 shadow-lg">
+                <p className="text-[10px] font-semibold text-cyan-300">LIVE TRACKING</p>
+                <p className="text-lg font-bold text-white">1,247</p>
+                <p className="text-[9px] text-white/50">tourists protected</p>
+              </div>
+              <div className="absolute -right-4 bottom-8 glass rounded-xl px-3 py-2 shadow-lg" style={{ animation: 'float-up 4s ease-in-out 1s infinite' }}>
+                <p className="text-[10px] font-semibold text-emerald-300">RESPONSE TIME</p>
+                <p className="text-lg font-bold text-white">&lt; 2m</p>
+                <p className="text-[9px] text-white/50">avg emergency</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex w-full flex-1 flex-col gap-4 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 self-center rounded-full bg-white/10 px-3 py-1 text-sm lg:self-start">
-              <Shield className="h-4 w-4" />
-              AI · Geo · Blockchain
+          {/* Right — Text content */}
+          <div className="flex w-full flex-1 flex-col gap-5 text-center lg:text-left">
+            {/* Tech badges */}
+            <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300">
+                <Brain className="h-3 w-3" /> AI Detection
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                <MapPin className="h-3 w-3" /> Geo-Sensing
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-300">
+                <Lock className="h-3 w-3" /> Blockchain
+              </span>
             </div>
-            <h1 className="text-balance text-2xl font-extrabold leading-tight text-white drop-shadow md:text-4xl lg:text-5xl">
+
+            <h1 className="text-balance text-3xl font-extrabold leading-tight tracking-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl">
               {s.title}
             </h1>
-            <p className="text-balance text-lg text-white/90">{s.subtitle}</p>
-            <div className="flex justify-center gap-2 pt-2 lg:justify-start">
+            <p className="text-balance text-lg leading-relaxed text-white/75 lg:text-xl">
+              {s.subtitle}
+            </p>
+
+            {/* CTA buttons */}
+            <div className="flex flex-wrap justify-center gap-3 pt-2 lg:justify-start">
+              <Link
+                href="/emergency"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-red-500 to-rose-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/25 transition hover:shadow-red-500/40 hover:brightness-110"
+              >
+                <Radio className="h-4 w-4" />
+                Emergency SOS
+              </Link>
+              <Link
+                href="/dashboard/user/fir"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15"
+              >
+                <FileText className="h-4 w-4" />
+                File e-FIR
+              </Link>
+            </div>
+
+            {/* Slide dots */}
+            <div className="flex justify-center gap-2.5 pt-3 lg:justify-start">
               {heroSlides.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setSlide(idx)}
-                  className={`h-2.5 w-2.5 rounded-full transition ${
-                    idx === slide ? "bg-white" : "bg-white/40"
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    idx === slide ? "w-8 bg-white" : "w-2 bg-white/30 hover:bg-white/50"
                   }`}
                   aria-label={`Slide ${idx + 1}`}
                 />
