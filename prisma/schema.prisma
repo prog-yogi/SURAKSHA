@@ -21,6 +21,7 @@ model User {
   kycStatus              String   @default("Pending")
   blockchainIdStatus     String   @default("Pending")
   locationTrackingStatus String   @default("Pending")
+
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   emergencies            EmergencyEvent[]
@@ -63,3 +64,46 @@ model SystemActivity {
   detail    String?
   createdAt DateTime @default(now())
 }
+
+enum IncidentType {
+  THEFT
+  ASSAULT
+  CYBERCRIME
+  HARASSMENT
+  ROBBERY
+  OTHER
+}
+
+model FIR {
+  id               String       @id @default(cuid())
+  firNumber        String       @unique
+  userId           String
+  complainantName  String
+  complainantAddress String?
+  complainantContact String?
+  incidentType     IncidentType
+  incidentDateTime DateTime
+  location         String
+  description      String       @db.Text
+  accusedDetails   String?
+  evidenceUrls     Json?
+  status           String       @default("PENDING")
+  otpCode          String?
+  otpSentAt        DateTime?
+  verifiedAt       DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("firs")
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  firId     String   @unique
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  fir       FIR      @relation(fields: [firId], references: [id], onDelete: Cascade)
+}
+

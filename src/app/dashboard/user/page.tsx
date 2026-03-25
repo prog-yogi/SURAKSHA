@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle2,
+  ClipboardList,
   Loader2,
   LogOut,
   MapPin,
+  Route,
   Shield,
   User,
 } from "lucide-react";
@@ -22,11 +24,21 @@ type U = {
   blockchainIdStatus: string;
   locationTrackingStatus: string;
   address: string | null;
+  age: number | null;
+  phone: string | null;
+  nationality: string | null;
+  gender: string | null;
+  permanentAddress: string | null;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  idDocumentType: string | null;
+  idDocumentNumber: string | null;
 };
 
 export default function UserDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<U | null>(null);
+
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -36,11 +48,15 @@ export default function UserDashboardPage() {
       });
   }, []);
 
+
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
   }
+
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8">
@@ -116,6 +132,8 @@ export default function UserDashboardPage() {
         </div>
       )}
 
+
+
       <div className="mt-8 grid gap-4 text-center sm:grid-cols-3">
         <div className="rounded-xl bg-white py-4 shadow">
           <p className="text-2xl font-bold text-blue-600">1,247</p>
@@ -176,6 +194,20 @@ export default function UserDashboardPage() {
           className="rounded-full bg-red-600 px-6 py-3 text-sm font-bold text-white hover:bg-red-700"
         >
           Open Emergency / Panic
+        </Link>
+
+        <Link
+          href="/dashboard/user/fir"
+          className="inline-flex items-center gap-2 rounded-full border-2 border-slate-800 px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+        >
+          File New FIR
+        </Link>
+        <Link
+          href="/dashboard/user/safe-route"
+          className="inline-flex items-center gap-2 rounded-full border-2 border-rose-600 px-6 py-3 text-sm font-semibold text-rose-900 hover:bg-rose-50"
+        >
+          <Route className="h-4 w-4" />
+          Heat zones — safest path
         </Link>
         <Link
           href="/geo"

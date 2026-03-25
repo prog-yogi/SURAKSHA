@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   ChevronDown,
   Download,
@@ -13,6 +13,8 @@ import {
   User,
   X,
   AlertTriangle,
+  FileText,
+  MoreHorizontal,
 } from "lucide-react";
 
 const nav = [
@@ -28,11 +30,25 @@ export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const loginRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setOpen(false);
+    setLoginOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
+
+  /* close dropdowns on outside click */
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+      if (loginRef.current && !loginRef.current.contains(e.target as Node)) setLoginOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
@@ -49,6 +65,7 @@ export function Navbar() {
           </span>
         </Link>
 
+        {/* Desktop nav links */}
         <nav className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => (
             <Link
@@ -65,52 +82,22 @@ export function Navbar() {
           ))}
         </nav>
 
+        {/* Desktop right actions */}
         <div className="hidden items-center gap-2 lg:flex">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-700"
-            >
-              <Globe className="h-4 w-4" />
-              English
-              <span className="text-base leading-none" aria-hidden>
-                🇺🇸
-              </span>
-              <ChevronDown className="h-3 w-3" />
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 mt-1 w-36 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-                <button
-                  type="button"
-                  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
-                  onClick={() => setLangOpen(false)}
-                >
-                  English
-                </button>
-                <button
-                  type="button"
-                  className="block w-full px-3 py-2 text-left text-sm text-slate-400"
-                  disabled
-                >
-                  हिंदी (soon)
-                </button>
-              </div>
-            )}
-          </div>
-
-          <a
-            href="#download"
-            className="flex items-center gap-1 rounded-full border-2 border-emerald-600 px-3 py-1.5 text-sm font-medium text-emerald-700"
+          {/* e-FIR link */}
+          <Link
+            href="/dashboard/user/fir"
+            className="flex items-center gap-1 rounded-full border-2 border-slate-800 px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
           >
-            <Download className="h-4 w-4" />
-            Download App
-          </a>
+            <FileText className="h-4 w-4" />
+            e-FIR
+          </Link>
 
-          <div className="relative">
+          {/* Login dropdown */}
+          <div className="relative" ref={loginRef}>
             <button
               type="button"
-              onClick={() => setLoginOpen(!loginOpen)}
+              onClick={() => { setLoginOpen(!loginOpen); setMoreOpen(false); }}
               className="flex items-center gap-1 rounded-full border-2 border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-700"
             >
               <LogIn className="h-4 w-4" />
@@ -146,6 +133,7 @@ export function Navbar() {
             )}
           </div>
 
+          {/* Emergency SOS */}
           <Link
             href="/emergency"
             className="flex items-center gap-1 rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
@@ -154,15 +142,49 @@ export function Navbar() {
             Emergency SOS
           </Link>
 
-          <Link
-            href="/contact"
-            className="flex items-center gap-1 rounded-full border-2 border-amber-400 px-3 py-1.5 text-sm font-medium text-slate-800"
-          >
-            <Phone className="h-4 w-4" />
-            Contact
-          </Link>
+          {/* More dropdown — houses Download App, Language, Contact */}
+          <div className="relative" ref={moreRef}>
+            <button
+              type="button"
+              onClick={() => { setMoreOpen(!moreOpen); setLoginOpen(false); }}
+              className="flex items-center justify-center rounded-full border border-slate-200 p-2 text-slate-600 hover:bg-slate-100"
+              aria-label="More options"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+            {moreOpen && (
+              <div className="absolute right-0 mt-1 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                <a
+                  href="#download"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => setMoreOpen(false)}
+                >
+                  <Download className="h-4 w-4 text-emerald-600" />
+                  Download App
+                </a>
+                <Link
+                  href="/contact"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                  onClick={() => setMoreOpen(false)}
+                >
+                  <Phone className="h-4 w-4 text-amber-600" />
+                  Contact Us
+                </Link>
+                <div className="border-t border-slate-100 px-3 py-2">
+                  <p className="flex items-center gap-2 text-sm text-slate-700">
+                    <Globe className="h-4 w-4 text-blue-600" />
+                    English 🇺🇸
+                  </p>
+                  <p className="mt-1 pl-6 text-xs text-slate-400">
+                    हिंदी (coming soon)
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* Mobile hamburger */}
         <button
           type="button"
           className="rounded-lg p-2 lg:hidden"
@@ -173,6 +195,7 @@ export function Navbar() {
         </button>
       </div>
 
+      {/* Mobile menu */}
       {open && (
         <div className="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1">
@@ -185,6 +208,13 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/dashboard/user/fir"
+              className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800"
+            >
+              <FileText className="h-4 w-4" />
+              e-FIR
+            </Link>
             <Link
               href="/login/admin"
               className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800"
@@ -204,6 +234,13 @@ export function Navbar() {
               <AlertTriangle className="h-4 w-4" />
               Emergency SOS
             </Link>
+            <a
+              href="#download"
+              className="flex items-center justify-center gap-2 rounded-lg border border-emerald-300 py-2 text-sm font-medium text-emerald-800"
+            >
+              <Download className="h-4 w-4" />
+              Download App
+            </a>
             <Link
               href="/contact"
               className="flex items-center justify-center gap-2 rounded-lg border-2 border-amber-400 py-2 text-sm font-medium text-slate-800"

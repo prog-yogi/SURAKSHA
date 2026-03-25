@@ -20,6 +20,15 @@ export async function GET() {
       kycStatus: true,
       blockchainIdStatus: true,
       locationTrackingStatus: true,
+      age: true,
+      phone: true,
+      nationality: true,
+      gender: true,
+      permanentAddress: true,
+      emergencyContactName: true,
+      emergencyContactPhone: true,
+      idDocumentType: true,
+      idDocumentNumber: true,
     },
   });
 

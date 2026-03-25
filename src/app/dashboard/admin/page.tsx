@@ -25,11 +25,21 @@ type Overview = {
 type Tourist = {
   id: string;
   name: string;
+  email: string;
   did: string | null;
   address: string | null;
   status: string;
   lat: number | null;
   lng: number | null;
+  age: number | null;
+  phone: string | null;
+  nationality: string | null;
+  gender: string | null;
+  permanentAddress: string | null;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  idDocumentType: string | null;
+  idDocumentNumber: string | null;
 };
 
 export default function AdminDashboardPage() {
@@ -242,20 +252,86 @@ export default function AdminDashboardPage() {
 
       <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-slate-900">
-          Live Tourist Registry with Real Locations
+          Live Tourist Registry with real locations and E-FIR fields
         </h2>
         <div className="mt-4 space-y-2">
           {tourists.map((t) => (
             <div
               key={t.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm"
+              className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm"
             >
-              <div>
-                <p className="font-semibold text-slate-900">{t.name}</p>
-                <p className="text-xs text-slate-500">{t.did ?? "No DID"}</p>
-                <p className="text-xs text-slate-600">{t.address ?? "—"}</p>
+              <div className="min-w-0 flex-1 space-y-2">
+                <div>
+                  <p className="font-semibold text-slate-900">{t.name}</p>
+                  <p className="text-xs text-slate-500">{t.email}</p>
+                  <p className="text-xs text-slate-500">{t.did ?? "No DID"}</p>
+                  <p className="text-xs text-slate-600">Last known: {t.address ?? "—"}</p>
+                </div>
+                {(t.age != null ||
+                  t.phone ||
+                  t.nationality ||
+                  t.gender ||
+                  t.permanentAddress ||
+                  t.emergencyContactName ||
+                  t.emergencyContactPhone ||
+                  t.idDocumentType ||
+                  t.idDocumentNumber) && (
+                  <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2 text-xs text-slate-800">
+                    <p className="font-semibold text-amber-900">E-FIR / profile</p>
+                    <ul className="mt-1 grid gap-0.5 sm:grid-cols-2">
+                      {t.age != null && (
+                        <li>
+                          <span className="text-slate-500">Age:</span> {t.age}
+                        </li>
+                      )}
+                      {t.phone && (
+                        <li>
+                          <span className="text-slate-500">Phone:</span> {t.phone}
+                        </li>
+                      )}
+                      {t.nationality && (
+                        <li>
+                          <span className="text-slate-500">Nationality:</span> {t.nationality}
+                        </li>
+                      )}
+                      {t.gender && (
+                        <li>
+                          <span className="text-slate-500">Gender:</span> {t.gender}
+                        </li>
+                      )}
+                      {t.permanentAddress && (
+                        <li className="sm:col-span-2">
+                          <span className="text-slate-500">Permanent address:</span>{" "}
+                          {t.permanentAddress}
+                        </li>
+                      )}
+                      {t.emergencyContactName && (
+                        <li>
+                          <span className="text-slate-500">Emergency contact:</span>{" "}
+                          {t.emergencyContactName}
+                        </li>
+                      )}
+                      {t.emergencyContactPhone && (
+                        <li>
+                          <span className="text-slate-500">Emergency phone:</span>{" "}
+                          {t.emergencyContactPhone}
+                        </li>
+                      )}
+                      {t.idDocumentType && (
+                        <li>
+                          <span className="text-slate-500">ID type:</span> {t.idDocumentType}
+                        </li>
+                      )}
+                      {t.idDocumentNumber && (
+                        <li>
+                          <span className="text-slate-500">ID number:</span> {t.idDocumentNumber}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                     t.status === "SAFE"

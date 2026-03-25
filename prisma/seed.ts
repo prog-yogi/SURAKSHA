@@ -106,8 +106,9 @@ async function main() {
         },
         {
           hash: "0xfedcba098765432109876543210fedcba",
-          label: "E-FIR audit trail",
+          label: "FIR audit trail",
           touristDid: "DID:0x4d5e6f",
+
         },
       ],
     });
@@ -134,10 +135,30 @@ async function main() {
         },
       ],
     });
+
+  // Seed demo FIRs
+  const john = await prisma.user.findUnique({ where: { email: "john@demo.com" } });
+  if (john) {
+    await prisma.fIR.create({
+      data: {
+        firNumber: "FIR-2024-0001",
+        userId: john.id,
+        complainantName: john.name,
+        complainantContact: "+1-555-0123",
+        incidentType: "THEFT",
+        incidentDateTime: new Date("2024-10-01T14:30:00Z"),
+        location: "Connaught Place, Delhi",
+        description: "Wallet stolen while shopping. Suspect fled on bike.",
+        accusedDetails: "Male, 30s, black shirt",
+        status: "PENDING",
+      },
+    });
+  }
   }
 }
 
 main()
+
   .then(() => prisma.$disconnect())
   .catch(async (e) => {
     console.error(e);

@@ -42,8 +42,8 @@ export default function UserLoginPage() {
         User login
       </h1>
       <p className="mt-2 text-center text-sm text-slate-600">
-        Access your personal dashboard, location tools, and SOS. Admin accounts
-        use a separate login.
+        Access your personal dashboard, location tools, and SOS. Add e-FIR details after you sign
+        in. Admin accounts use a separate login.
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
