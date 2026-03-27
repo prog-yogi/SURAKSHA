@@ -115,7 +115,10 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          aadhaarNumber: form.aadhaarNumber.replace(/\s/g, ""),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
