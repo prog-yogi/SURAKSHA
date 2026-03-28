@@ -53,33 +53,33 @@ export default function SafeRoutePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 lg:px-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4 p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-500/20 mb-8 shadow-sm">
         <div>
-          <p className="text-xs font-semibold uppercase text-rose-600">Heat zones</p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-900">Safest path on map</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-600">
+          <p className="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-500 tracking-widest drop-shadow-sm">SURAKSHA Geo-Sensing</p>
+          <h1 className="mt-2 text-3xl font-bold text-emerald-950 dark:text-emerald-50">Safest path on map</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-800 dark:text-emerald-200/80">
             Red areas are authority-flagged heat zones (demo). The green line is a route that
             avoids crossing them when possible. Click the map to place the{" "}
-            <span className="font-semibold">start</span> or{" "}
-            <span className="font-semibold">destination</span> depending on the mode below.
+            <span className="font-semibold text-emerald-900 dark:text-emerald-100">start</span> or{" "}
+            <span className="font-semibold text-emerald-900 dark:text-emerald-100">destination</span> depending on the mode below.
           </p>
         </div>
         <Link
           href="/dashboard/user"
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100"
+          className="rounded-xl border border-emerald-300 dark:border-emerald-700/50 bg-white dark:bg-[#0B0F19]/50 px-5 py-2.5 text-sm font-bold text-emerald-900 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-[#131B2B] shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
         >
           Back to dashboard
         </Link>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={() => setPickMode("start")}
-          className={`rounded-lg px-4 py-2 text-sm font-semibold ${
+          className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all shadow-sm ${
             pickMode === "start"
-              ? "bg-blue-600 text-white"
-              : "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
+              ? "bg-blue-600 dark:bg-blue-500 text-white border border-transparent shadow-blue-500/30"
+              : "border border-slate-300 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] text-slate-800 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1c2333]"
           }`}
         >
           Place start (click map)
@@ -87,10 +87,10 @@ export default function SafeRoutePage() {
         <button
           type="button"
           onClick={() => setPickMode("end")}
-          className={`rounded-lg px-4 py-2 text-sm font-semibold ${
+          className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all shadow-sm ${
             pickMode === "end"
-              ? "bg-violet-600 text-white"
-              : "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
+              ? "bg-violet-600 dark:bg-violet-500 text-white border border-transparent shadow-violet-500/30"
+              : "border border-slate-300 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] text-slate-800 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1c2333]"
           }`}
         >
           Place destination (click map)
@@ -98,16 +98,16 @@ export default function SafeRoutePage() {
         <button
           type="button"
           onClick={useGpsForStart}
-          className="inline-flex items-center gap-2 rounded-lg border border-emerald-600 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+          className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-900 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all shadow-sm"
         >
           <Crosshair className="h-4 w-4" />
           Use GPS for start
         </button>
       </div>
 
-      {gpsMsg && <p className="mt-2 text-sm text-slate-600">{gpsMsg}</p>}
+      {gpsMsg && <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-400">{gpsMsg}</p>}
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+      <div className="mt-4 overflow-hidden rounded-2xl border border-slate-300 dark:border-[#2A303C] shadow-md dark:shadow-none relative z-0">
         <SafeRouteMap
           start={start}
           end={end}
@@ -117,25 +117,25 @@ export default function SafeRoutePage() {
         />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-start gap-6 rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-sm">
-        <div className="flex items-center gap-2 text-slate-800">
-          <MapPinned className="h-5 w-5 text-emerald-600" />
+      <div className="mt-4 flex flex-wrap items-start gap-6 rounded-2xl border border-slate-300 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] p-5 shadow-sm transition-all">
+        <div className="flex items-center gap-3 text-slate-800 dark:text-slate-300">
+          <MapPinned className="h-6 w-6 text-emerald-600 dark:text-emerald-400 drop-shadow-sm" />
           <div>
-            <p className="font-semibold text-emerald-800">Suggested safest route ≈ {lenM} m</p>
+            <p className="font-bold text-emerald-800 dark:text-emerald-400">Suggested safest route ≈ {lenM} m</p>
             {!isDirectSafe ? (
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 Gray dashed line shows the direct segment through risk areas; follow the solid green
                 detour when heat zones are active.
               </p>
             ) : (
-              <p className="text-xs text-slate-600">Direct path stays clear of all heat zones.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Direct path stays clear of all heat zones.</p>
             )}
           </div>
         </div>
-        <ul className="text-xs text-slate-600">
+        <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
           {DEFAULT_HEAT_ZONES.map((z) => (
             <li key={z.id}>
-              <span className="font-medium text-red-700">{z.label}</span> — ~{z.radiusM} m radius
+              <span className="font-semibold text-red-600 dark:text-red-400">{z.label}</span> — ~{z.radiusM} m radius
             </li>
           ))}
         </ul>

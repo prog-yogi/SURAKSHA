@@ -35,25 +35,25 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0B0F19] px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-200">
-            <ShieldAlert className="h-7 w-7 text-white" />
+            <ShieldAlert className="h-7 w-7 text-slate-900 dark:text-white" />
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-blue-600">Authority Console</p>
-          <h1 className="mt-1 text-3xl font-extrabold text-slate-900">Admin login</h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <h1 className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">Admin login</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Use your administrator credentials. Tourist accounts cannot sign in here.
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-100">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] shadow-xl shadow-black/20">
           <form onSubmit={onSubmit} className="space-y-5 px-6 py-7">
             <div>
-              <label className="block text-sm font-medium text-slate-700" htmlFor="email">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="email">
                 Email Address
               </label>
               <input
@@ -62,13 +62,13 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400"
+                className="mt-1 w-full rounded-lg border border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400"
                 autoComplete="email"
                 placeholder="admin@suraksha.gov"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700" htmlFor="password">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">
                 Password
               </label>
               <div className="relative mt-1">
@@ -78,14 +78,14 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5 pr-10 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400"
+                  className="w-full rounded-lg border border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-white px-3 py-2.5 pr-10 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400"
                   autoComplete="current-password"
                   placeholder="rohan#1234"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-600"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

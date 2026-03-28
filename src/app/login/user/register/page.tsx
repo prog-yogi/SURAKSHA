@@ -59,7 +59,7 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium text-slate-700">
+      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
         <Icon className="h-4 w-4 text-emerald-600" />
         {label}
         {required && <span className="text-red-500">*</span>}
@@ -95,7 +95,7 @@ export default function RegisterPage() {
 
   const inputClass = (field: string) =>
     `mt-0.5 w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-emerald-400 ${
-      fieldErrors[field] ? "border-red-400 bg-red-50" : "border-slate-300 bg-white focus:border-emerald-400"
+      fieldErrors[field] ? "border-red-400 bg-red-50" : "border-slate-200 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] focus:border-emerald-400"
     }`;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -133,27 +133,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 py-10 px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] py-10 px-4">
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 shadow-lg shadow-emerald-200">
-            <ShieldAlert className="h-7 w-7 text-white" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 shadow-lg shadow-emerald-900/50">
+            <ShieldAlert className="h-7 w-7 text-slate-900 dark:text-white" />
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Suraksha</p>
-          <h1 className="mt-1 text-3xl font-extrabold text-slate-900">Create your account</h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <h1 className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">Create your account</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Register to access personal safety tools, SOS, and emergency features.
           </p>
         </div>
 
         <form
           onSubmit={onSubmit}
-          className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-100"
+          className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] shadow-xl shadow-black/20"
         >
           {/* Personal Information */}
-          <div className="border-b border-slate-100 bg-slate-50 px-6 py-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Personal Information</p>
+          <div className="border-b border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] px-6 py-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Personal Information</p>
           </div>
           <div className="space-y-5 px-6 py-6">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -220,7 +220,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Citizenship Information */}
-          <div className="border-y border-slate-100 bg-blue-50 px-6 py-3">
+          <div className="border-y border-slate-200 dark:border-[#2A303C] bg-blue-50 px-6 py-3">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-blue-700">
               <Globe className="h-3.5 w-3.5" />
               Citizenship Information
@@ -239,7 +239,7 @@ export default function RegisterPage() {
                   >
                     <option value="Indian Citizen">Indian Citizen</option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                 </div>
               </FormField>
               <FormField label="Aadhaar Card Number" required icon={CreditCard} error={fieldErrors.aadhaarNumber}>
@@ -264,7 +264,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Emergency Contact */}
-          <div className="border-y border-slate-100 bg-red-50 px-6 py-3">
+          <div className="border-y border-slate-200 dark:border-[#2A303C] bg-red-50 px-6 py-3">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-red-600">
               <ShieldAlert className="h-3.5 w-3.5" />
               Emergency Contact Details
@@ -309,8 +309,8 @@ export default function RegisterPage() {
           </div>
 
           {/* Security */}
-          <div className="border-y border-slate-100 bg-slate-50 px-6 py-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Security</p>
+          <div className="border-y border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] px-6 py-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Security</p>
           </div>
           <div className="space-y-5 px-6 py-6">
             <FormField label="Password" required icon={Lock} error={fieldErrors.password}>
@@ -328,7 +328,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-600"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -339,8 +339,8 @@ export default function RegisterPage() {
           </div>
 
           {/* Consent & Permissions */}
-          <div className="border-t border-slate-100 px-6 py-6">
-            <p className="mb-4 text-sm font-bold text-slate-900">Consent & Permissions</p>
+          <div className="border-t border-slate-200 dark:border-[#2A303C] px-6 py-6">
+            <p className="mb-4 text-sm font-bold text-slate-900 dark:text-white">Consent & Permissions</p>
             <div className="flex flex-col gap-3">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -349,9 +349,9 @@ export default function RegisterPage() {
                   required
                   checked={form.consentLocation}
                   onChange={(e) => setForm(prev => ({ ...prev, consentLocation: e.target.checked }))}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600 cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-200 dark:border-[#2A303C] text-emerald-600 focus:ring-emerald-600 cursor-pointer"
                 />
-                <span className="text-sm text-slate-700 font-medium">
+                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
                   I consent to real-time location tracking for safety and emergency response purposes
                 </span>
               </label>
@@ -364,9 +364,9 @@ export default function RegisterPage() {
                   required
                   checked={form.consentCredentials}
                   onChange={(e) => setForm(prev => ({ ...prev, consentCredentials: e.target.checked }))}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600 cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-200 dark:border-[#2A303C] text-emerald-600 focus:ring-emerald-600 cursor-pointer"
                 />
-                <span className="text-sm text-slate-700 font-medium">
+                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
                   I consent to storing my credentials securely for verification and data protection
                 </span>
               </label>
@@ -375,7 +375,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Submit */}
-          <div className="border-t border-slate-100 bg-slate-50 px-6 py-5">
+          <div className="border-t border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] px-6 py-5">
             {serverError && (
               <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
                 <XCircle className="h-4 w-4 shrink-0" />
@@ -385,11 +385,11 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-md shadow-emerald-200 transition hover:bg-emerald-700 active:scale-[0.99] disabled:opacity-60"
+              className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-md shadow-emerald-900/50 transition hover:bg-emerald-700 active:scale-[0.99] disabled:opacity-60"
             >
               {loading ? "Creating account…" : "Create Account"}
             </button>
-            <p className="mt-4 text-center text-sm text-slate-500">
+            <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
               Already have an account?{" "}
               <Link href="/login/user" className="font-semibold text-emerald-700 hover:underline">
                 Sign in

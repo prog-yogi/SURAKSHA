@@ -9,8 +9,9 @@ export async function GET() {
     return NextResponse.json({ error: "Admin only" }, { status: 401 });
   }
 
-  const firs = await prisma.fir.findMany({
+  const firs = await prisma.fIR.findMany({
     orderBy: { createdAt: "desc" },
+    take: 50,
   });
 
   return NextResponse.json({ firs });

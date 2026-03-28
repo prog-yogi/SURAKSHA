@@ -21,7 +21,15 @@ model User {
   kycStatus              String   @default("Pending")
   locationTrackingStatus String   @default("Pending")
 
-  // New registration fields
+  // Profile fields
+  dateOfBirth                 DateTime?
+  gender                      String?
+  bio                         String?
+  profileImage                String?   // base64 data URI or URL
+  nationality                 String?
+  bloodGroup                  String?
+
+  // Registration fields
   phone                       String?
   alternativePhone            String?
   citizenship                 String?

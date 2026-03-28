@@ -19,15 +19,25 @@ export async function GET() {
         status: true,
         kycStatus: true,
         locationTrackingStatus: true,
+        address: true,
         phone: true,
         emergencyContactName: true,
         emergencyContactPhone: true,
+        profileImage: true,
+        gender: true,
+        dateOfBirth: true,
+        nationality: true,
+        bloodGroup: true,
+        bio: true,
       },
     });
 
     return NextResponse.json({ user: user ?? null, session });
   } catch (error: any) {
     console.error("SESSION ERROR:", error);
-    return NextResponse.json({ error: "Failed to fetch session data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch session data" },
+      { status: 500 },
+    );
   }
 }
