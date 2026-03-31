@@ -32,6 +32,18 @@ function getMarkerIcon(zone: string) {
   });
 }
 
+function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function UpdateMapCenter({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
@@ -96,7 +108,9 @@ export default function SatelliteMap({
           attribution=""
         />
 
-        {threatMarkers.map((m, i) => {
+        {threatMarkers
+          .filter((m) => distanceMeters(lat, lng, m.lat, m.lng) <= 3000)
+          .map((m, i) => {
           const icon = getMarkerIcon(m.zone);
           if (!icon) return null;
           const zoneColor = m.zone === "RED" ? "#ef4444" : m.zone === "ORANGE" ? "#f97316" : m.zone === "YELLOW" ? "#eab308" : "#22c55e";

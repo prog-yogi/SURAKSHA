@@ -42,8 +42,8 @@ export async function GET(req: Request) {
     // silently fail cleanup if db is locked
   }
 
-  // 1. Fetch ALL VERIFIED threats within a wider radius (e.g. 1.5km) to render multiple map pins
-  const CACHE_RADIUS_LARGE = CACHE_RADIUS_DEG * 3;
+  // 1. Fetch ALL VERIFIED threats within a wider radius (e.g. ~5km bounding box) to render multiple map pins
+  const CACHE_RADIUS_LARGE = 0.045;
   const verifiedThreats = await prisma.threatZone.findMany({
     where: {
       lat: { gte: lat - CACHE_RADIUS_LARGE, lte: lat + CACHE_RADIUS_LARGE },
