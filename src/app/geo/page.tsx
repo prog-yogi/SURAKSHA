@@ -453,6 +453,13 @@ export default function GeoPage() {
               <BarChart2 className="h-3.5 w-3.5" />
               Danger Heatmap
             </Link>
+            <Link
+              href="/safe-route"
+              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition"
+            >
+              <Navigation className="h-3.5 w-3.5" />
+              Safe Route
+            </Link>
             <Link 
               href="/dashboard/user" 
               className="text-sm font-medium text-slate-400 hover:text-white transition"
