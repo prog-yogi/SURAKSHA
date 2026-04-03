@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import type { ThreatMarker as ThreatPin } from "@/lib/threat-engine";
+import type { AmenityItem } from "./ThematicMap";
 
 // Fix default marker icon issue in Next.js/Webpack
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: string })._getIconUrl;
@@ -83,11 +84,13 @@ export default function SatelliteMap({
   lat,
   lng,
   threatMarkers = [],
+  amenities = [],
   onHover,
 }: {
   lat: number;
   lng: number;
   threatMarkers?: ThreatPin[];
+  amenities?: AmenityItem[];
   onHover?: (marker: ThreatPin | null) => void;
 }) {
   return (
@@ -164,6 +167,44 @@ export default function SatelliteMap({
                   </div>
                 </div>
               </Popup>
+            </Marker>
+          );
+        })}
+
+        {/* Render Amenities */}
+        {amenities.map((amenity) => {
+          const distMeters = distanceMeters(lat, lng, amenity.lat, amenity.lng);
+          const distStr = distMeters < 1000 ? `${Math.round(distMeters)} m` : `${(distMeters / 1000).toFixed(1)} km`;
+          
+          let emoji = "📍";
+          
+          if (amenity.type === "hospital") {
+            emoji = "🏥";
+          } else if (amenity.type === "police") {
+            emoji = "🚓";
+          } else if (amenity.type === "hotel") {
+            emoji = "🏨";
+          }
+
+          const icon = L.divIcon({
+            html: `<div style="background-color: transparent; font-size: 20px; filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.3));" class="flex items-center justify-center">${emoji}</div>`,
+            className: "bg-transparent border-none",
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          });
+
+          return (
+            <Marker key={amenity.id} position={[amenity.lat, amenity.lng]} icon={icon}>
+              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", padding: "2px" }}>
+                  <div style={{ fontWeight: 800, fontSize: "13px", color: "#1e293b", marginBottom: "2px" }}>
+                    {amenity.name}
+                  </div>
+                  <div style={{ color: "#64748b", fontSize: "11px", fontWeight: 600 }}>
+                    Distance: <span style={{ color: "#0ea5e9" }}>{distStr} from you</span>
+                  </div>
+                </div>
+              </Tooltip>
             </Marker>
           );
         })}

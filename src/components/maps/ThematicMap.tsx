@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polygon } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, Circle, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import type { GeoFenceMapFence } from "./GeoFenceMap"; // reuse the type
+
+export interface AmenityItem {
+  id: string;
+  lat: number;
+  lng: number;
+  type: "police" | "hospital" | "hotel";
+  name: string;
+}
 
 // Fix default marker icon issue in Next.js
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: string })._getIconUrl;
@@ -18,12 +26,18 @@ const ZONE_COLORS: Record<string, string> = {
   RED: "#ef4444",
   ORANGE: "#f97316",
   YELLOW: "#eab308",
+  PURPLE: "#a855f7",
+  BLUE: "#3b82f6",
+  BROWN: "#a16207",
 };
 
 const ZONE_BG: Record<string, string> = {
   RED: "rgba(239,68,68,0.12)",
   ORANGE: "rgba(249,115,22,0.12)",
   YELLOW: "rgba(234,179,8,0.12)",
+  PURPLE: "rgba(168,85,247,0.12)",
+  BLUE: "rgba(59,130,246,0.12)",
+  BROWN: "rgba(161,98,7,0.12)",
 };
 
 // ── Haversine distance (meters) ──────────────────────────────────────────
@@ -232,10 +246,12 @@ export default function ThematicMap({
   lat,
   lng,
   fences = [],
+  amenities = [],
 }: {
   lat: number;
   lng: number;
   fences?: GeoFenceMapFence[];
+  amenities?: AmenityItem[];
 }) {
   return (
     <div className="h-full w-full">
@@ -313,17 +329,75 @@ export default function ThematicMap({
           return null;
         })}
 
-        <Marker position={[lat, lng]}>
-          <Popup>
-            <div className="font-semibold text-slate-800">Your location</div>
-            <div className="text-xs text-slate-500">
-              {lat.toFixed(5)}, {lng.toFixed(5)}
-            </div>
-          </Popup>
-        </Marker>
+        {/* Render Amenities */}
+        {amenities.map((amenity) => {
+          const distStr = formatDistance(haversineDistance(lat, lng, amenity.lat, amenity.lng));
+          
+          let emoji = "📍";
+          let bg = "bg-slate-800";
+          
+          if (amenity.type === "hospital") {
+            emoji = "🏥";
+            bg = "bg-red-500/90";
+          } else if (amenity.type === "police") {
+            emoji = "🚓";
+            bg = "bg-blue-600/90";
+          } else if (amenity.type === "hotel") {
+            emoji = "🏨";
+            bg = "bg-teal-600/90";
+          }
+
+          const icon = L.divIcon({
+            html: `<div style="background-color: transparent; font-size: 20px; filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.3));" class="flex items-center justify-center">${emoji}</div>`,
+            className: "bg-transparent border-none",
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          });
+
+          return (
+            <Marker key={amenity.id} position={[amenity.lat, amenity.lng]} icon={icon}>
+              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", padding: "2px" }}>
+                  <div style={{ fontWeight: 800, fontSize: "13px", color: "#1e293b", marginBottom: "2px" }}>
+                    {amenity.name}
+                  </div>
+                  <div style={{ color: "#64748b", fontSize: "11px", fontWeight: 600 }}>
+                    Distance: <span style={{ color: "#0ea5e9" }}>{distStr} from you</span>
+                  </div>
+                </div>
+              </Tooltip>
+            </Marker>
+          );
+        })}
+
+        <UserMarker lat={lat} lng={lng} />
 
         <UpdateMapCenter lat={lat} lng={lng} />
       </MapContainer>
     </div>
+  );
+}
+
+function UserMarker({ lat, lng }: { lat: number; lng: number }) {
+  const [placeName, setPlaceName] = useState<string>("Resolving...");
+
+  useEffect(() => {
+    reverseGeocode(lat, lng).then(setPlaceName);
+  }, [lat, lng]);
+
+  return (
+    <Marker position={[lat, lng]}>
+      <Tooltip direction="top" offset={[0, -20]} opacity={1}>
+        <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", padding: "2px" }}>
+          <div style={{ fontWeight: 800, fontSize: "13px", color: "#1e293b", marginBottom: "2px" }}>Your Location</div>
+          <div style={{ color: "#0ea5e9", fontSize: "11px", fontWeight: 600, marginBottom: "4px" }}>
+            {lat.toFixed(5)}° N, {lng.toFixed(5)}° E
+          </div>
+          <div style={{ fontSize: "11px", color: "#64748b", maxWidth: "200px", whiteSpace: "normal", lineHeight: 1.4 }}>
+            {placeName}
+          </div>
+        </div>
+      </Tooltip>
+    </Marker>
   );
 }

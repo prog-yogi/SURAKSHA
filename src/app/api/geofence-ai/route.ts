@@ -59,9 +59,9 @@ export async function GET(req: Request) {
     );
   }
 
-  if (!["hazard", "traffic", "risk"].includes(category)) {
+  if (!["all", "hazard", "traffic", "risk"].includes(category)) {
     return NextResponse.json(
-      { error: "category must be hazard, traffic, or risk" },
+      { error: "category must be all, hazard, traffic, or risk" },
       { status: 400 }
     );
   }
@@ -212,13 +212,18 @@ OUTPUT FORMAT:
         // Get center position offset from user
         const center = offsetByMeters(lat, lng, bearingDeg, Math.min(distM, 18000));
 
+        // Specific colors based on category
+        let zoneColor = "BROWN"; // default risk
+        if (cat === "hazard") zoneColor = "PURPLE";
+        if (cat === "traffic") zoneColor = "BLUE";
+
         return {
           id: `ai-${cat}-${index}`,
           type: "circle" as const,
           centerLat: center.lat,
           centerLng: center.lng,
           radius: SEVERITY_RADIUS[severity] || 600,
-          zone: SEVERITY_ZONE[severity] || "YELLOW",
+          zone: zoneColor,
           name: item.location_name
             ? `${TYPE_LABELS[item.type] || item.type.replace(/_/g, " ")} — ${item.location_name}`
             : TYPE_LABELS[item.type] || item.type.replace(/_/g, " "),

@@ -143,6 +143,22 @@ export default function GeoPage() {
   const [aiFenceLoading, setAiFenceLoading] = useState(false);
   const [aiFenceSummary, setAiFenceSummary] = useState<string | null>(null);
 
+  // Amenities state
+  const [amenities, setAmenities] = useState<any[]>([]);
+
+  // Fetch amenities
+  useEffect(() => {
+    if (!loc) return;
+    fetch(`/api/amenities?lat=${loc.lat}&lng=${loc.lng}&radius=10000`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data && data.amenities) {
+          setAmenities(data.amenities);
+        }
+      })
+      .catch((e) => console.error("Failed to fetch amenities:", e));
+  }, [loc?.lat, loc?.lng]);
+
   // Fetch fences for Thematic map
   useEffect(() => {
     fetch("/api/admin/geofences")
@@ -157,7 +173,7 @@ export default function GeoPage() {
 
   // Fetch AI fences when category changes
   useEffect(() => {
-    if (geoFenceCategory === "all" || !loc) {
+    if (!loc) {
       return;
     }
 
@@ -399,12 +415,23 @@ export default function GeoPage() {
     setGeoFenceAlerts((prev) => prev.filter((a) => a.id !== alertId));
   };
 
+  const distanceMeters = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] transition-colors duration-300">
-      <header className="sticky top-0 z-10 border-b border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-slate-50/95 dark:bg-[#0B0F19]/95 backdrop-blur px-4 py-3 sm:px-6 flex items-center justify-between">
+      <header className="sticky top-0 z-10 border-b border-[#2A303C] bg-[#0B0F19]/95 backdrop-blur px-4 py-3 sm:px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
            <MapPin className="h-5 w-5 text-emerald-500" />
-           <h1 className="font-bold text-slate-900 dark:text-white">SURAKSHA <span className="text-slate-500 dark:text-slate-400">Geo-Sensing</span></h1>
+           <h1 className="font-bold text-white">SURAKSHA <span className="text-slate-400">Geo-Sensing</span></h1>
         </div>
         <div className="flex gap-3 items-center">
             {/* Geo-fence indicator */}
@@ -428,7 +455,7 @@ export default function GeoPage() {
             </Link>
             <Link 
               href="/dashboard/user" 
-              className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition"
+              className="text-sm font-medium text-slate-400 hover:text-white transition"
             >
                 Back to Dashboard
             </Link>
@@ -572,16 +599,25 @@ export default function GeoPage() {
                      lat={loc.lat} 
                      lng={loc.lng} 
                      threatMarkers={threatPins} 
+                     amenities={amenities}
                      onHover={setHoveredThreat} 
                    />
                  ) : (
                    <ThematicMap
                      lat={loc.lat}
                      lng={loc.lng}
+                     amenities={amenities}
                      fences={
-                       geoFenceCategory !== "all" && aiFences && aiFences[geoFenceCategory]
-                         ? aiFences[geoFenceCategory]
-                         : allFences
+                       geoFenceCategory === "all"
+                         ? [
+                             ...allFences,
+                             ...(aiFences?.hazard || []),
+                             ...(aiFences?.traffic || []),
+                             ...(aiFences?.risk || [])
+                           ]
+                         : aiFences && aiFences[geoFenceCategory]
+                           ? aiFences[geoFenceCategory]
+                           : allFences
                      }
                    />
                  )}
@@ -625,7 +661,7 @@ export default function GeoPage() {
                         {(threatLoading || threatZone || threatSummary || threatError || hoveredThreat) && (
                           <div className="mt-3 border-t border-white/10 pt-3">
                             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                              {hoveredThreat ? 'Focused Threat Detail' : 'AI threat map'}
+                              {hoveredThreat ? 'Focused Threat Detail' : 'AI THREAT DESCRIPTION'}
                             </p>
                             {threatLoading && !hoveredThreat && (
                               <p className="mt-1 text-xs text-slate-300">Analyzing nearby risk…</p>
@@ -677,18 +713,6 @@ export default function GeoPage() {
 
                 </div>
             )}
-            
-            {/* Overlay Map Controls */}
-            <div className="absolute right-6 top-6 flex flex-col gap-3 pointer-events-none">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/80 shadow-2xl backdrop-blur-md text-white border border-white/20 ring-1 ring-black/5 pointer-events-auto cursor-pointer hover:bg-slate-800 transition">
-                    <Search className="h-5 w-5 drop-shadow-md" />
-                </div>
-                <div className="flex h-11 w-11 flex-col items-center justify-center rounded-2xl bg-slate-900/80 shadow-2xl backdrop-blur-md overflow-hidden border border-white/20 ring-1 ring-black/5">
-                    <div className="flex h-1/2 w-full items-center justify-center bg-transparent hover:bg-white/20 cursor-pointer pointer-events-auto text-white transition font-bold text-lg">+</div>
-                    <div className="h-px bg-white/20 w-full" />
-                    <div className="flex h-1/2 w-full items-center justify-center bg-transparent hover:bg-white/20 cursor-pointer pointer-events-auto text-white transition font-bold text-lg">-</div>
-                </div>
-            </div>
         </div>
 
         {/* ── Geo-Fence Activity Log ─── */}
@@ -740,26 +764,41 @@ export default function GeoPage() {
 
         {/* Nearby Safe Zones */}
         <div className="mt-8">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Nearby Safe Zones & Corridors</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Nearby Amenities & Shelters</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                {[
-                    {name: "Tourist Checkpoint Alpha", dist: "1.2 km", status: "Active"},
-                    {name: "City Center Safe Corridor", dist: "2.5 km", status: "Active"},
-                    {name: "Emergency Medical Camp", dist: "3.8 km", status: "Standby"},
-                ].map((z, i) => (
-                    <div key={i} className="rounded-xl border border-slate-200 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] p-4 shadow-sm transition hover:border-slate-300 dark:hover:border-white/20">
-                        <div className="flex items-center justify-between">
-                             <h3 className="font-semibold text-slate-900 dark:text-white text-sm truncate pr-2">{z.name}</h3>
-                             <Shield className="h-4 w-4 text-emerald-500 shrink-0" />
+                {loc && amenities.length > 0 ? (
+                    [
+                      amenities.filter(a => a.type === 'hospital').sort((a, b) => distanceMeters(loc.lat, loc.lng, a.lat, a.lng) - distanceMeters(loc.lat, loc.lng, b.lat, b.lng))[0],
+                      amenities.filter(a => a.type === 'police').sort((a, b) => distanceMeters(loc.lat, loc.lng, a.lat, a.lng) - distanceMeters(loc.lat, loc.lng, b.lat, b.lng))[0],
+                      amenities.filter(a => a.type === 'hotel').sort((a, b) => distanceMeters(loc.lat, loc.lng, a.lat, a.lng) - distanceMeters(loc.lat, loc.lng, b.lat, b.lng))[0]
+                    ]
+                      .filter(Boolean)
+                      .map(a => ({ ...a!, dist: distanceMeters(loc.lat, loc.lng, a!.lat, a!.lng) }))
+                      .map((z, i) => (
+                        <div key={i} className="rounded-xl border border-slate-200 dark:border-[#2A303C] bg-white dark:bg-[#131B2B] p-4 shadow-sm transition hover:border-slate-300 dark:hover:border-white/20">
+                            <div className="flex items-center justify-between">
+                                 <h3 className="font-semibold text-slate-900 dark:text-white text-sm truncate pr-2">{z.name}</h3>
+                                 <span className="text-xl shrink-0">
+                                   {z.type === 'hospital' ? '🏥' : z.type === 'police' ? '🚓' : '🏨'}
+                                 </span>
+                            </div>
+                            <div className="mt-3 flex items-center justify-between text-xs font-semibold">
+                                <span className="text-slate-500 dark:text-slate-400">
+                                    {z.dist < 1000 ? `${Math.round(z.dist)} m` : `${(z.dist / 1000).toFixed(1)} km`}
+                                </span>
+                                <span className={`capitalize px-2 py-0.5 rounded border ${
+                                  z.type === 'hospital' ? 'text-red-500 bg-red-500/10 border-red-500/20' :
+                                  z.type === 'police' ? 'text-blue-500 bg-blue-500/10 border-blue-500/20' :
+                                  'text-teal-500 bg-teal-500/10 border-teal-500/20'
+                                }`}>
+                                    {z.type}
+                                </span>
+                            </div>
                         </div>
-                        <div className="mt-3 flex items-center justify-between text-xs font-semibold">
-                            <span className="text-slate-500 dark:text-slate-400">{z.dist}</span>
-                            <span className={z.status === 'Active' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-100 dark:border-emerald-500/20' : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-100 dark:border-amber-500/20'}>
-                                {z.status}
-                            </span>
-                        </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <div className="col-span-3 text-sm text-slate-500">Searching for nearby locations...</div>
+                )}
             </div>
         </div>
       </main>
