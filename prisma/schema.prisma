@@ -46,6 +46,7 @@ model User {
   firs                   FIR[]
   threatZones            ThreatZone[]
   notifications          Notification[]   @relation("notifications")
+  safeJourneys           SafeJourney[]
 }
 
 model EmergencyEvent {
@@ -185,4 +186,30 @@ model Notification {
   recipient   User     @relation("notifications", fields: [recipientId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+// Safe Route Journey — created on "Start Journey", deleted on "Done", kept as ALERTED if SOS fires
+model SafeJourney {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromPlace        String
+  toPlace          String
+  fromLat          Float
+  fromLng          Float
+  toLat            Float
+  toLng            Float
+  distanceKm       Float
+  mode             String    // bike | car | bus | train
+  avgSpeedKmh      Float
+  estimatedMinutes Int
+  bufferMinutes    Int       @default(30)
+  etaAt            DateTime
+  deadlineAt       DateTime  // etaAt + bufferMinutes — when SOS fires
+  routeCoords      String    // JSON array of [lng,lat] from OSRM
+  status           String    @default("ACTIVE") // ACTIVE | ALERTED
+  alertSentAt      DateTime?
+  startedAt        DateTime  @default(now())
+
+  @@map("safe_journeys")
 }
