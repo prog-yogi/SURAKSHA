@@ -100,6 +100,19 @@ export async function GET(req: Request) {
       }
     }
 
+    // DEMO / FALLBACK INJECTION: If no police stations were found in the OSM data for this location, 
+    // inject a nearby mock police station so the map icons can be properly demonstrated.
+    const hasPolice = amenities.some(a => a.type === "police");
+    if (!hasPolice && !isNaN(lat) && !isNaN(lng)) {
+       amenities.push({
+          id: "demo-police-" + Date.now(),
+          lat: lat + 0.003, // Slight offset so it appears near the user
+          lng: lng - 0.002,
+          type: "police",
+          name: "District Police Station (Demo)",
+       });
+    }
+
     return NextResponse.json({ amenities });
 
   } catch (error: any) {

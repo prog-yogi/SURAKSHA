@@ -473,8 +473,7 @@ export default function IncidentReportPage() {
                 ref={cameraInputRef}
                 type="file"
                 accept="image/*,video/*"
-                capture="environment"
-                multiple
+                capture
                 onChange={(e) => addFiles(e.target.files)}
                 className="hidden"
               />
@@ -498,7 +497,7 @@ export default function IncidentReportPage() {
               <input
                 ref={galleryInputRef}
                 type="file"
-                accept="image/*,video/*,.pdf,.doc,.docx"
+                accept="image/*,video/*"
                 multiple
                 onChange={(e) => addFiles(e.target.files)}
                 className="hidden"

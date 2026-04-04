@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -242,7 +242,102 @@ export default function UserDashboardPage() {
 /* ──────────────────────────────────────────────────────── */
 /*  OVERVIEW TAB                                            */
 /* ──────────────────────────────────────────────────────── */
+function playAlertNotification(durationSeconds = 7) {
+  if (typeof window === "undefined") return;
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Play a pulsing siren for the requested duration
+    for (let i = 0; i < durationSeconds * 2; i++) {
+        const startTime = audioCtx.currentTime + i * 0.5;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(1000, startTime);
+        oscillator.frequency.exponentialRampToValueAtTime(500, startTime + 0.3);
+
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.3);
+    }
+  } catch (e) {
+    console.warn("Audio API not supported");
+  }
+}
+
 function OverviewTab({ profile, stats }: { profile: Profile | null; stats: Stats | null }) {
+  const [simulatedZone, setSimulatedZone] = useState<"SAFE" | "MODERATE" | "RISK">("SAFE");
+  const [isAlertActive, setIsAlertActive] = useState(false);
+  const lastAlertState = useRef<{ zone: string; fenceIds: string }>({ zone: "SAFE", fenceIds: "" });
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    const checkLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const res = await fetch("/api/geofence-check", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            });
+            const data = await res.json();
+            if (data.results) {
+              let isRed = false;
+              let isOrange = false;
+              const currentFenceIds: string[] = [];
+
+              for (const key in data.results) {
+                if (data.results[key].inside) {
+                  currentFenceIds.push(key);
+                  if (data.results[key].zone === "RED") isRed = true;
+                  if (data.results[key].zone === "ORANGE" || data.results[key].zone === "YELLOW") isOrange = true;
+                }
+              }
+
+              let currentZone: "SAFE" | "MODERATE" | "RISK" = "SAFE";
+              if (isRed) currentZone = "RISK";
+              else if (isOrange) currentZone = "MODERATE";
+
+              setSimulatedZone(currentZone);
+
+              const fenceIdsStr = currentFenceIds.sort().join(",");
+              const hasZoneChanged = currentZone !== lastAlertState.current.zone;
+
+              // ALERT LOGIC: Trigger ONLY if the broader Zone Level changes (e.g. SAFE -> RISK), never re-triggering for overlapping fences of the same severity.
+              if ((currentZone === "RISK" || currentZone === "MODERATE") && hasZoneChanged) {
+                setIsAlertActive(true);
+                playAlertNotification(5);
+                if ("vibrate" in navigator) {
+                  navigator.vibrate(Array.from({ length: 10 }).flatMap(() => [300, 200]));
+                }
+                setTimeout(() => setIsAlertActive(false), 5000);
+              }
+
+              // Persist the state in the ref to prevent redundant re-triggers on every interval
+              lastAlertState.current = { zone: currentZone, fenceIds: fenceIdsStr };
+            }
+          } catch (e) {
+            console.error("Geofence check failed", e);
+          }
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    };
+
+    checkLocation();
+    const interval = setInterval(checkLocation, 10000); // Check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Quick Actions */}
@@ -283,27 +378,69 @@ function OverviewTab({ profile, stats }: { profile: Profile | null; stats: Stats
       {/* Status cards */}
       <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-8 mb-4">Safety Status</h3>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          icon={Shield}
-          title="Safety Status"
-          value={stats?.safetyStatus ?? "—"}
-          color={
-            stats?.safetyStatus === "SAFE"
-              ? "emerald"
-              : stats?.safetyStatus === "WARNING"
-                ? "amber"
-                : "red"
-          }
-        />
-        <StatCard icon={FileText} title="FIRs Filed" value={String(stats?.totalFIRs ?? 0)} color="cyan" />
+        <div
+          className={`relative overflow-hidden flex flex-col items-start gap-4 rounded-2xl border p-5 transition-all text-left shadow-sm group ${
+            simulatedZone === "SAFE"
+              ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-[#131B2B]"
+              : simulatedZone === "MODERATE"
+                ? "border-amber-200 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-900/10"
+                : "border-red-500/50 bg-red-500/10 ring-1 ring-red-500/30 animate-pulse"
+          }`}
+        >
+          <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${
+            simulatedZone === "SAFE" ? "from-emerald-400/20 to-emerald-500/20 text-emerald-600 dark:text-emerald-400" :
+            simulatedZone === "MODERATE" ? "from-amber-400/20 to-amber-500/20 text-amber-600 dark:text-amber-400" :
+            "from-red-500/30 to-red-600/30 text-red-500 animate-bounce"
+          }`}>
+            {simulatedZone === "RISK" ? <AlertTriangle className="h-6 w-6" /> : <Shield className="h-6 w-6" />}
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </span>
+              Live Geofence Monitor
+            </p>
+            <p className={`mt-1 text-2xl font-black tracking-tight ${
+              simulatedZone === "SAFE" ? "text-slate-900 dark:text-white" :
+              simulatedZone === "MODERATE" ? "text-amber-600 dark:text-amber-400" :
+              "text-red-500 dark:text-red-500"
+            }`}>
+              {simulatedZone === "SAFE" ? "Safe Zone" : simulatedZone === "MODERATE" ? "Moderate Zone" : "Risk Area"}
+            </p>
+          </div>
+        </div>
+        <StatCard icon={FileText} title="Reports Filed" value={String(stats?.totalFIRs ?? 0)} color="cyan" />
         <StatCard icon={Siren} title="SOS Events" value={String(stats?.totalEmergencies ?? 0)} color="red" />
         <StatCard
           icon={CheckCircle2}
-          title="Identity KYC"
-          value={stats?.kycStatus ?? "Pending"}
+          title="Verified Status"
+          value={stats?.kycStatus === "Complete" ? "Verified" : "Pending"}
           color={stats?.kycStatus === "Complete" ? "emerald" : "amber"}
         />
       </div>
+
+      {/* ─── DYNAMIC GEOFENCE ALERT OVERLAY ─── */}
+      {isAlertActive && (
+        <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-lg animate-in fade-in zoom-in duration-300`}>
+          <div className={`absolute inset-0 ${simulatedZone === 'MODERATE' ? 'bg-amber-600/20' : 'bg-red-600/20'} animate-sos-pulse-outer`} />
+          <div className="relative z-10 flex flex-col items-center text-center px-4">
+            <div className={`flex h-32 w-32 items-center justify-center rounded-full ${simulatedZone === 'MODERATE' ? 'bg-amber-600/20 ring-amber-500/50 shadow-[0_0_40px_rgba(245,158,11,0.4)]' : 'bg-red-600/20 ring-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.4)]'} ring-4 mb-8 animate-pulse`}>
+              <AlertTriangle className={`h-16 w-16 ${simulatedZone === 'MODERATE' ? 'text-amber-500' : 'text-red-500'}`} />
+            </div>
+            <h2 className={`text-5xl md:text-7xl font-black text-white tracking-widest uppercase mb-4 ${simulatedZone === 'MODERATE' ? 'drop-shadow-[0_0_20px_rgba(245,158,11,0.8)]' : 'drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'}`}>
+              ⚠️ Pls Be Aware
+            </h2>
+            <p className={`text-xl md:text-2xl font-bold ${simulatedZone === 'MODERATE' ? 'text-amber-200' : 'text-red-200'} mt-4 max-w-lg`}>
+              You have hit a geofenced {simulatedZone === 'MODERATE' ? 'Moderate Zone' : 'Risk Area'}!
+            </p>
+            <p className={`text-base ${simulatedZone === 'MODERATE' ? 'text-amber-400/80' : 'text-red-400/80'} mt-2 max-w-md`}>
+              Please stay alert and proceed with caution. This system warning will dismiss automatically.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -652,22 +789,10 @@ function ProfileTab({
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 pl-1">Short Biography</label>
                 <textarea name="bio" value={form.bio} onChange={handleChange} rows={2} className="w-full rounded-xl border border-slate-200 dark:border-[#2A303C] bg-slate-50 dark:bg-[#0B0F19] px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 text-slate-900 dark:text-white font-medium transition placeholder:text-slate-600" placeholder="Agent backstory..." />
               </div>
-              <EditField label="Permanent Address" name="address" value={form.address} onChange={handleChange} />
+              <EditField label="Mailing Address" name="address" value={form.address} onChange={handleChange} />
             </div>
           ) : (
-            <div className="space-y-4">
-              <InfoRow label="Designation" value={profile.name} />
-              <InfoRow label="Network ID" value={profile.email} />
-              <InfoRow label="Comms Primary" value={profile.phone} />
-              <InfoRow label="Comms Secondary" value={profile.alternativePhone} />
-              <InfoRow label="Phenotype" value={profile.gender} />
-              <InfoRow label="Origin Date" value={profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : null} />
-              <InfoRow label="Registered Age" value={age !== null ? `${age} Cycles` : null} />
-              <InfoRow label="Jurisdiction" value={profile.nationality} />
-              <InfoRow label="Blood Type" value={profile.bloodGroup} neonValue />
-              <InfoRow label="Profile Notes" value={profile.bio} />
-              <InfoRow label="Base Loc" value={profile.address} />
-            </div>
+              <InfoRow label="Address" value={profile.address} />
           )}
         </div>
 

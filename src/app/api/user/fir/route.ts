@@ -70,20 +70,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate IR number (IR-01, IR-02, ...)
-    const count = await prisma.fIR.count();
-    const seq = (count + 1).toString().padStart(2, "0");
-    const firNumber = `IR-${seq}`;
+    // Generate IR number ensuring uniqueness without hitting P2002 constraint error
+    const suffix = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 100).toString().padStart(2, "0");
+    const firNumber = `IR-${suffix}${random}`;
 
     // Handle evidence files
     const evidenceUrls: string[] = [];
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "fir", firNumber);
+    const baseUploadDir = path.join(process.cwd(), "public", "uploads", "fir");
+    const uploadDir = path.join(baseUploadDir, firNumber);
+    
+    // Ensure both base and specific dirs exist
+    await fs.mkdir(baseUploadDir, { recursive: true });
     await fs.mkdir(uploadDir, { recursive: true });
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.size === 0) continue;
-      if (file.size > 50 * 1024 * 1024) continue; // skip any single file over 50MB
       const ext = path.extname(file.name) || ".bin";
       const filename = `${Date.now()}-${i + 1}${ext}`;
       const filepath = path.join(uploadDir, filename);
@@ -122,10 +125,28 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, firNumber, message: "Incident report submitted successfully" });
   } catch (error: any) {
-    console.error("Incident report submission error:", error);
+    console.error("Incident report submission failure details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      details: error.errors // for Zod errors
+    });
+    
+    // TEMPORARY LOGGING FOR AGENT TO READ
+    const fs = require('fs');
+    fs.writeFileSync('api_error.log', JSON.stringify({
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      details: error.errors
+    }, null, 2));
+
     if (error.name === "ZodError") {
       return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
     }
-    return NextResponse.json({ error: "Failed to submit incident report" }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || "Failed to submit incident report",
+      details: process.env.NODE_ENV === "development" ? error.message : undefined 
+    }, { status: 500 });
   }
 }

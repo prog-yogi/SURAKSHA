@@ -25,7 +25,7 @@ type NavItem = { href: string; label: string; icon: React.ElementType };
 
 const USER_NAV: NavItem[] = [
   { href: "/dashboard/user", label: "Overview", icon: Home },
-  { href: "/dashboard/user?tab=firs", label: "My FIRs", icon: FileText },
+  { href: "/dashboard/user?tab=firs", label: "My Reports", icon: FileText },
   { href: "/dashboard/user?tab=emergencies", label: "Emergency History", icon: Siren },
   { href: "/dashboard/user/safe-route", label: "Safe Route", icon: Route },
   { href: "/emergency", label: "Emergency SOS", icon: AlertTriangle },
